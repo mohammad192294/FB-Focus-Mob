@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "FB Text-Only Endgame (v6)",
-  "version": "6.0",
-  "description": "The ultimate blocker for Videos, Stories, and Reels on Facebook without crashing.",
+  "name": "FB Clean Text (V7 Final)",
+  "version": "7.0",
+  "description": "Removes all Video cards, Stories, and Reels containers completely using CSS :has selector.",
   "permissions": [
     "activeTab",
     "scripting"
