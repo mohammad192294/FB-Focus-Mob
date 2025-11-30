@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "FB Project Zero (Final)",
-  "version": "10.0",
-  "description": "The absolute final solution to remove all video content, stories, and gaps from Facebook Mobile.",
+  "name": "FB Text Only v13 (No Video/Reels)",
+  "version": "13.0",
+  "description": "Completely removes Video cards and Reels from the feed before they appear.",
   "permissions": [
     "activeTab",
     "scripting"
