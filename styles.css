@@ -1,57 +1,68 @@
 /* -----------------------------------------------------------
-   FB V7.0 FINAL: The Container Killer
-   Target: m.facebook.com & www.facebook.com
+   PROJECT ZERO: VISUAL BLOCKER
+   This works instantly before JS loads.
 ----------------------------------------------------------- */
 
-/* ১. সাদা বক্স ও নেভিগেশন ক্লিনআপ */
+/* ১. সাদা বক্স ও নেভিগেশন (Navbar Items) */
 div[data-sigil="m-navbar-item"]:has(a[href*="video"]),
 div[data-sigil="m-navbar-item"]:has(a[href*="watch"]),
 div[data-sigil="m-navbar-item"]:has(a[href*="reel"]),
-li:has(a[href*="watch"]),
-li:has(a[aria-label="Video"]),
+/* পুরনো ফোনের জন্য ফলব্যাক */
+.sec-video-nav,
 a[href*="/watch/"],
-a[href*="/reel/"] {
+a[href*="/reel/"],
+a[href*="/video/"] {
     display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    visibility: hidden !important;
 }
 
-/* ২. স্টোরিজ (Stories) সেকশন রিমুভাল */
+/* ২. স্টোরিজ (Stories - সব ধরনের) */
 div[data-sigil="m-stories-tray-root"],
 div[data-sigil="m-stories-tray"],
 section[aria-label="Stories"],
-div#m_news_feed_stream > div:first-child:has(div[aria-label="Story"]),
+div.story_tray,
+div#m_news_feed_stream > div:first-child > div:first-child,
 div._55wo:has(div[aria-label="Create story"]),
-div._55wo:has(div[aria-label="Add to Story"]) {
+div._55wo:has(span:contains("Create story")) {
     display: none !important;
     height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
     border: none !important;
 }
 
-/* ৩. ফিড ভিডিও কার্ড রিমুভাল (আসল কাজ এখানে) */
-/* Channel 24 বা অন্য ভিডিওর পুরো কার্ড (_55wo) গায়েব হবে */
+/* ৩. ভিডিও ফিড (Feed Cards) */
+/* ভিডিও ট্যাগ পেলেই সেই কার্ড গায়েব */
 div._55wo:has(video),
 div._55wo:has(div[data-sigil="inlineVideo"]),
 div._55wo:has(div[data-store*="videoID"]),
 div._55wo:has(i[data-sigil="play-button"]),
-/* রিলস বা শর্টস লিঙ্ক থাকলেও কার্ড গায়েব */
+/* রিলস কার্ড */
 div._55wo:has(a[href*="/reel/"]),
-div._55wo:has(a[href*="/shorts/"]),
-/* ডেস্কটপ বা অন্য ভিউ-এর জন্য */
-div[role="article"]:has(video),
-div[data-pagelet^="FeedUnit"]:has(video) {
+div._55wo:has(div[aria-label="Reels"]),
+/* স্পনসরড ভিডিও */
+div[data-sigil="story-div"]:has(video) {
     display: none !important;
-    /* নিশ্চিত করার জন্য হাইট জিরো করা হলো */
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ৪. এক্সট্রা ক্লিনিং */
+video, iframe, object, embed {
+    display: none !important;
+}
+
+/* ৫. JS দ্বারা চিহ্নিত এলিমেন্ট লুকানোর ক্লাস */
+.fb-zero-hidden {
+    display: none !important;
     height: 0 !important;
+    width: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
     opacity: 0 !important;
     pointer-events: none !important;
-}
-
-/* ৪. এক্সট্রা সেফটি (যদি কিছু লোড হয়েও যায়) */
-video, iframe[src*="facebook"] {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
 }
