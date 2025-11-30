@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "FB Text-Only Focus (No Reels/Videos)",
-  "version": "2.0",
-  "description": "Removes all videos, reels, stories, and shorts from Facebook while keeping text posts and layout intact.",
+  "name": "FB Text-Only Ultimate (No Gaps)",
+  "version": "3.1",
+  "description": "Removes Video/Reels/Watch tabs and feed units completely without leaving white spaces.",
   "permissions": [
     "activeTab",
     "scripting"
@@ -17,8 +17,9 @@
         "*://*.facebook.com/*",
         "*://*.fb.com/*"
       ],
+      "css": ["styles.css"],
       "js": ["content_script.js"],
-      "run_at": "document_idle",
+      "run_at": "document_start",
       "all_frames": true
     }
   ],
