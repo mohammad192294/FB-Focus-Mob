@@ -1,77 +1,78 @@
-/* -----------------------------------------------------------
-   ULIMATE BLOCKER CSS
-   Target: Facebook (Mobile & Desktop)
-   Goal: Remove Videos/Reels AND their Containers (No Gaps)
------------------------------------------------------------ */
+/* 
+   VERSION 6.0: THE END GAME CSS
+   Target: Facebook Mobile & Desktop
+   Strategy: Zero-Tolerance Layout Collapse
+*/
 
-/* 1. TOP NAVIGATION BAR CLEANUP (No White Gaps) */
-/* Desktop/Mobile Nav Items containing links to Watch/Reels */
-div[role="navigation"] li:has(a[href*="/watch"]),
-div[role="navigation"] li:has(a[href*="/reel"]),
-div[role="navigation"] li:has(a[href*="video"]),
-ul[data-type="type_nav_list"] > li:has(a[href*="video"]),
-/* Mobile Top Bar specific */
-div.m-navbar-item:has(a[href*="video"]),
-div.m-navbar-item:has(a[href*="watch"]),
-#m_news_feed_stream a[href*="video"],
-/* Hide the specific SVG icons if parent fails */
-svg circle + path[d*="M"], /* Complex check for some video icons */
+/* ----------------------------------------------------
+   1. NAVBAR & HEADER CLEANUP (Absolute Zero Gaps)
+---------------------------------------------------- */
+/* Video/Watch/Reels Icon Containers */
+div[data-sigil="m-navbar-item"]:has(a[href*="video"]),
+div[data-sigil="m-navbar-item"]:has(a[href*="watch"]),
+div[data-sigil="m-navbar-item"]:has(a[href*="reel"]),
+/* Flexbox & Grid Items */
+.col:has(a[href*="video"]),
+td:has(a[href*="video"]),
+li:has(a[href*="video"]),
+li:has(a[href*="watch"]),
+div[role="button"]:has(a[aria-label="Video"]),
+/* Specific Icons */
 a[aria-label="Video"], 
-a[aria-label="Watch"], 
-a[aria-label="Reels"] {
+a[aria-label="Watch"],
+a[href*="/watch/"],
+svg[aria-label="Video"] {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
+    min-width: 0 !important;
+    flex: 0 0 0 !important;
     margin: 0 !important;
     padding: 0 !important;
     opacity: 0 !important;
     pointer-events: none !important;
 }
 
-/* 2. FEED CLEANUP (Removes entire post card if it contains video) */
-/* This pulls the next text post up, removing the blank space */
-
-/* Desktop Feed Unit containing Video/Reels */
-div[data-pagelet^="FeedUnit"]:has(video),
-div[data-pagelet^="FeedUnit"]:has(a[href*="/reel/"]),
-div[data-pagelet^="FeedUnit"]:has(div[aria-label="Reels and short videos"]),
-div[data-pagelet^="FeedUnit"]:has(iframe),
-div[data-pagelet^="FeedUnit"]:has(.is_video),
-
-/* Mobile Feed Unit */
-div.story_body_container:has(video),
-div.story_body_container:has(div[data-sigil="inlineVideo"]),
-div._55wo:has(div[data-store*="videoID"]), 
-
-/* Reels Tray (The horizontal scroll list) */
-div[data-pagelet="ReelsTray"],
-div[data-pagelet="Stories"], /* If you want to kill stories too */
-div[id^="hyperfeed_story"]:has(video),
-
-/* Generic Video Containers */
-div[data-pagelet="Video"],
-div[data-pagelet="Watch"],
-div[aria-label*="Reels" i],
-div[aria-label*="Shorts" i] {
+/* ----------------------------------------------------
+   2. STORIES & REELS TRAY (Vertical & Horizontal Kill)
+---------------------------------------------------- */
+/* Mobile Stories Tray */
+div[data-sigil="m-stories-tray-root"],
+div[data-sigil="m-stories-tray"],
+div[data-store*="stories"],
+section[aria-label="Stories"],
+div#m_news_feed_stream > div:first-child:has(div[aria-label="Story"]),
+/* Desktop Reels Tray */
+div[aria-label="Reels and short videos"],
+div[data-pagelet="ReelsTray"] {
     display: none !important;
     height: 0 !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    margin-bottom: 0 !important;
     border: none !important;
 }
 
-/* 3. SHORTS/REELS SPECIFIC BLOCKS */
-/* Blocks any link that looks like a short video */
-a[href*="/reel/"],
-a[href*="/shorts/"],
-div[data-sigil="m-video-play-button"] {
+/* ----------------------------------------------------
+   3. FEED VIDEO CARDS (Entire Card Removal)
+---------------------------------------------------- */
+/* Mobile Feed Unit (_55wo is the card class) */
+div._55wo:has(video),
+div._55wo:has(div[data-sigil="inlineVideo"]),
+div._55wo:has(div[data-store*="videoID"]),
+div._55wo:has(i[data-sigil="play-button"]),
+div._55wo:has(a[href*="/reel/"]),
+div._55wo:has(a[href*="/shorts/"]),
+/* Desktop Feed Unit */
+div[data-pagelet^="FeedUnit"]:has(video),
+div[role="article"]:has(video) {
     display: none !important;
 }
 
-/* 4. EMERGENCY CLEANUP (If something leaks through) */
-video {
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
+/* ----------------------------------------------------
+   4. REDUNDANT CLEANUP
+---------------------------------------------------- */
+/* If a container becomes empty due to hiding, hide it too */
+div:empty, span:empty {
+    /* Be careful with this, sometimes causes issues, 
+       but for m.facebook gaps it helps */
+    display: none !important;
 }
