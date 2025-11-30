@@ -1,0 +1,77 @@
+/* -----------------------------------------------------------
+   ULIMATE BLOCKER CSS
+   Target: Facebook (Mobile & Desktop)
+   Goal: Remove Videos/Reels AND their Containers (No Gaps)
+----------------------------------------------------------- */
+
+/* 1. TOP NAVIGATION BAR CLEANUP (No White Gaps) */
+/* Desktop/Mobile Nav Items containing links to Watch/Reels */
+div[role="navigation"] li:has(a[href*="/watch"]),
+div[role="navigation"] li:has(a[href*="/reel"]),
+div[role="navigation"] li:has(a[href*="video"]),
+ul[data-type="type_nav_list"] > li:has(a[href*="video"]),
+/* Mobile Top Bar specific */
+div.m-navbar-item:has(a[href*="video"]),
+div.m-navbar-item:has(a[href*="watch"]),
+#m_news_feed_stream a[href*="video"],
+/* Hide the specific SVG icons if parent fails */
+svg circle + path[d*="M"], /* Complex check for some video icons */
+a[aria-label="Video"], 
+a[aria-label="Watch"], 
+a[aria-label="Reels"] {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* 2. FEED CLEANUP (Removes entire post card if it contains video) */
+/* This pulls the next text post up, removing the blank space */
+
+/* Desktop Feed Unit containing Video/Reels */
+div[data-pagelet^="FeedUnit"]:has(video),
+div[data-pagelet^="FeedUnit"]:has(a[href*="/reel/"]),
+div[data-pagelet^="FeedUnit"]:has(div[aria-label="Reels and short videos"]),
+div[data-pagelet^="FeedUnit"]:has(iframe),
+div[data-pagelet^="FeedUnit"]:has(.is_video),
+
+/* Mobile Feed Unit */
+div.story_body_container:has(video),
+div.story_body_container:has(div[data-sigil="inlineVideo"]),
+div._55wo:has(div[data-store*="videoID"]), 
+
+/* Reels Tray (The horizontal scroll list) */
+div[data-pagelet="ReelsTray"],
+div[data-pagelet="Stories"], /* If you want to kill stories too */
+div[id^="hyperfeed_story"]:has(video),
+
+/* Generic Video Containers */
+div[data-pagelet="Video"],
+div[data-pagelet="Watch"],
+div[aria-label*="Reels" i],
+div[aria-label*="Shorts" i] {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* 3. SHORTS/REELS SPECIFIC BLOCKS */
+/* Blocks any link that looks like a short video */
+a[href*="/reel/"],
+a[href*="/shorts/"],
+div[data-sigil="m-video-play-button"] {
+    display: none !important;
+}
+
+/* 4. EMERGENCY CLEANUP (If something leaks through) */
+video {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
