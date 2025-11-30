@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "FB Clean Text (V7 Final)",
-  "version": "7.0",
-  "description": "Removes all Video cards, Stories, and Reels containers completely using CSS :has selector.",
+  "name": "FB Project Zero (Final)",
+  "version": "10.0",
+  "description": "The absolute final solution to remove all video content, stories, and gaps from Facebook Mobile.",
   "permissions": [
     "activeTab",
     "scripting"
