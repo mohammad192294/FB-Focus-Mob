@@ -1,125 +1,57 @@
-/*
-   VERSION 6.0: THE END GAME (JS ENFORCER)
-   Combines "Brute Force" scanning with "React Safety"
-*/
+/* -----------------------------------------------------------
+   FB V7.0 FINAL: The Container Killer
+   Target: m.facebook.com & www.facebook.com
+----------------------------------------------------------- */
 
-// ১. কনফিগারেশন: ভিডিও চেনার শব্দসমূহ
-const BLACKLIST_KEYWORDS = [
-    "Reels and short videos",
-    "Suggested for you", // স্পনসরড ভিডিও
-    "Create story",
-    "Add to Story",
-    "Watch",
-    "Shorts"
-];
-
-// ২. মেইন ক্লিনিং লজিক
-function finalClean() {
-    try {
-        // --- A. Navbar & Menu Killer (সাদা বক্স রিমুভ) ---
-        // লিংকের ওপর ভিত্তি করে প্যারেন্ট খোঁজা
-        const videoLinks = document.querySelectorAll('a[href*="/watch"], a[href*="/video"], a[href*="/reel"], a[aria-label="Video"]');
-        videoLinks.forEach(link => {
-            // ৫ লেভেল উপরে চেক করব
-            let parent = link.parentElement;
-            let count = 0;
-            while (parent && count < 6) {
-                // লেআউট আইটেম ধরো (TD, LI, Flex Col)
-                const tag = parent.tagName;
-                const sigil = parent.getAttribute('data-sigil');
-                
-                if (sigil === 'm-navbar-item' || tag === 'TD' || tag === 'LI' || parent.classList.contains('col')) {
-                    // Hide without removing to prevent crash
-                    parent.style.display = 'none';
-                    parent.style.setProperty('display', 'none', 'important');
-                    parent.style.width = '0px';
-                    parent.style.margin = '0px';
-                    break;
-                }
-                parent = parent.parentElement;
-                count++;
-            }
-        });
-
-        // --- B. Story & Reel Section Killer (Text Analysis) ---
-        // সব div স্ক্যান করে "Create story" বের করা
-        // অপ্টিমাইজেশন: আমরা document.body এর বদলে ছোট ছোট সেকশন ধরব
-        const potentialHeaders = document.querySelectorAll('div, span, h3, h4');
-        potentialHeaders.forEach(el => {
-            // যদি টেক্সট ছোট হয় এবং ব্ল্যাকলিস্টে থাকে
-            if (el.innerText && el.innerText.length < 30) {
-                if (BLACKLIST_KEYWORDS.some(k => el.innerText.includes(k))) {
-                    // এর মেইন কার্ড খুঁজে বের করো
-                    const card = el.closest('div._55wo') || // Mobile Card
-                                 el.closest('div[data-sigil="m-stories-tray-root"]') || 
-                                 el.closest('section');
-                    
-                    if (card) {
-                        card.style.display = 'none';
-                        card.style.setProperty('display', 'none', 'important');
-                    }
-                }
-            }
-        });
-
-        // --- C. Feed Video Killer (The Heavy Hitter) ---
-        // ভিডিও এলিমেন্ট পেলেই তার পুরো খানদান (Post Card) গায়েব
-        const mediaElements = document.querySelectorAll('video, div[data-sigil="inlineVideo"], i[data-sigil="play-button"]');
-        mediaElements.forEach(media => {
-            const card = media.closest('div._55wo') || 
-                         media.closest('article') || 
-                         media.closest('div[role="article"]');
-            
-            if (card) {
-                card.style.display = 'none';
-                card.style.setProperty('display', 'none', 'important');
-            }
-        });
-
-    } catch (e) {
-        // Silent error handling
-    }
+/* ১. সাদা বক্স ও নেভিগেশন ক্লিনআপ */
+div[data-sigil="m-navbar-item"]:has(a[href*="video"]),
+div[data-sigil="m-navbar-item"]:has(a[href*="watch"]),
+div[data-sigil="m-navbar-item"]:has(a[href*="reel"]),
+li:has(a[href*="watch"]),
+li:has(a[aria-label="Video"]),
+a[href*="/watch/"],
+a[href*="/reel/"] {
+    display: none !important;
 }
 
-// ৩. হাই-পারফরম্যান্স লুপ (RequestAnimationFrame)
-// এটি চ্যাটজিপিটির appendChild হুকের চেয়ে অনেক ফাস্ট এবং নিরাপদ
-let isRunning = false;
-function loop() {
-    if (!isRunning) {
-        isRunning = true;
-        requestAnimationFrame(() => {
-            finalClean();
-            isRunning = false;
-        });
-    }
+/* ২. স্টোরিজ (Stories) সেকশন রিমুভাল */
+div[data-sigil="m-stories-tray-root"],
+div[data-sigil="m-stories-tray"],
+section[aria-label="Stories"],
+div#m_news_feed_stream > div:first-child:has(div[aria-label="Story"]),
+div._55wo:has(div[aria-label="Create story"]),
+div._55wo:has(div[aria-label="Add to Story"]) {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
 }
 
-// ৪. স্টার্টআপ
-function init() {
-    if (!document.body) {
-        setTimeout(init, 50); // বডি না আসা পর্যন্ত অপেক্ষা
-        return;
-    }
-
-    // ১. তাৎক্ষণিক ক্লিন
-    finalClean();
-
-    // ২. স্ক্রলে ক্লিন (সবচেয়ে জরুরি)
-    window.addEventListener('scroll', loop, { passive: true });
-
-    // ৩. DOM পরিবর্তনে ক্লিন (MutationObserver)
-    const observer = new MutationObserver(loop);
-    observer.observe(document.body, { childList: true, subtree: true });
-    
-    // ৪. ব্যাকআপ টাইমার (প্রতি ৫০০ms)
-    setInterval(finalClean, 500);
-
-    console.log("FB v6.0 EndGame: Active");
+/* ৩. ফিড ভিডিও কার্ড রিমুভাল (আসল কাজ এখানে) */
+/* Channel 24 বা অন্য ভিডিওর পুরো কার্ড (_55wo) গায়েব হবে */
+div._55wo:has(video),
+div._55wo:has(div[data-sigil="inlineVideo"]),
+div._55wo:has(div[data-store*="videoID"]),
+div._55wo:has(i[data-sigil="play-button"]),
+/* রিলস বা শর্টস লিঙ্ক থাকলেও কার্ড গায়েব */
+div._55wo:has(a[href*="/reel/"]),
+div._55wo:has(a[href*="/shorts/"]),
+/* ডেস্কটপ বা অন্য ভিউ-এর জন্য */
+div[role="article"]:has(video),
+div[data-pagelet^="FeedUnit"]:has(video) {
+    display: none !important;
+    /* নিশ্চিত করার জন্য হাইট জিরো করা হলো */
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
-// রান
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
+/* ৪. এক্সট্রা সেফটি (যদি কিছু লোড হয়েও যায়) */
+video, iframe[src*="facebook"] {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
