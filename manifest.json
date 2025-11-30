@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "FB Text-Only Focus (No Reels/Videos)",
+  "version": "2.0",
+  "description": "Removes all videos, reels, stories, and shorts from Facebook while keeping text posts and layout intact.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*.facebook.com/*",
+    "*://*.fb.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.facebook.com/*",
+        "*://*.fb.com/*"
+      ],
+      "js": ["content_script.js"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "icons": {
+    "128": "icons/icon128.png"
+  }
+}
