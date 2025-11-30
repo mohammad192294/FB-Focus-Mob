@@ -1,74 +1,75 @@
-/* 
-   Mobile FB Cleaner v5.1 (Final Fix)
-   Goal: Remove Gaps, Stories & Videos without Crashing
+/*
+   VERSION 6.0: THE END GAME (JS ENFORCER)
+   Combines "Brute Force" scanning with "React Safety"
 */
 
-// ১. সেইফ লজিক: পেজ তৈরি না হওয়া পর্যন্ত অপেক্ষা করবে
-function waitForBody() {
-    if (!document.body) {
-        // বডি না পাওয়া গেলে ৫০ মিলি-সেকেন্ড পর আবার চেষ্টা করো
-        setTimeout(waitForBody, 50);
-        return;
-    }
-    // বডি পাওয়া গেছে, এখন কাজ শুরু
-    startCleaning();
-}
+// ১. কনফিগারেশন: ভিডিও চেনার শব্দসমূহ
+const BLACKLIST_KEYWORDS = [
+    "Reels and short videos",
+    "Suggested for you", // স্পনসরড ভিডিও
+    "Create story",
+    "Add to Story",
+    "Watch",
+    "Shorts"
+];
 
-// ২. মেইন ক্লিনিং ইঞ্জিন
-function cleanNow() {
+// ২. মেইন ক্লিনিং লজিক
+function finalClean() {
     try {
-        // --- A. NAVBAR GAPS REMOVAL (সাদা বক্স ফিক্স) ---
-        // ভিডিও বা ওয়াচ লিংক আছে এমন আইটেমগুলো ধরো
-        const badNavItems = document.querySelectorAll('a[href*="/watch"], a[href*="/video"], a[href*="/reel"], a[aria-label="Video"], a[aria-label="Watch"]');
-        
-        badNavItems.forEach(link => {
-            // আইকনের ৩ লেভেল উপরের প্যারেন্ট (বক্স) খুঁজে বের করে হাইড করো
+        // --- A. Navbar & Menu Killer (সাদা বক্স রিমুভ) ---
+        // লিংকের ওপর ভিত্তি করে প্যারেন্ট খোঁজা
+        const videoLinks = document.querySelectorAll('a[href*="/watch"], a[href*="/video"], a[href*="/reel"], a[aria-label="Video"]');
+        videoLinks.forEach(link => {
+            // ৫ লেভেল উপরে চেক করব
             let parent = link.parentElement;
-            let safety = 0;
-            while (parent && safety < 5) {
-                // m.facebook এর নেভিগেশন আইটেম চেনার উপায়
-                if (
-                    parent.getAttribute('data-sigil') === 'm-navbar-item' || 
-                    parent.tagName === 'LI' ||
-                    parent.classList.contains('col') 
-                ) {
+            let count = 0;
+            while (parent && count < 6) {
+                // লেআউট আইটেম ধরো (TD, LI, Flex Col)
+                const tag = parent.tagName;
+                const sigil = parent.getAttribute('data-sigil');
+                
+                if (sigil === 'm-navbar-item' || tag === 'TD' || tag === 'LI' || parent.classList.contains('col')) {
+                    // Hide without removing to prevent crash
                     parent.style.display = 'none';
                     parent.style.setProperty('display', 'none', 'important');
-                    parent.style.margin = '0';
-                    parent.style.padding = '0';
+                    parent.style.width = '0px';
+                    parent.style.margin = '0px';
                     break;
                 }
                 parent = parent.parentElement;
-                safety++;
+                count++;
             }
         });
 
-        // --- B. STORIES TRAY REMOVAL (স্টোরি ফিক্স) ---
-        // সরাসরি স্টোরি কন্টেইনার টার্গেট
-        const storyTrays = document.querySelectorAll('div[data-sigil="m-stories-tray-root"], div[data-sigil="m-stories-tray"], section[aria-label="Stories"]');
-        storyTrays.forEach(tray => {
-            tray.style.display = 'none';
-            tray.style.setProperty('display', 'none', 'important');
-        });
-
-        // যদি "Create story" লেখা কোনো বাটন থাকে, তার পুরো সেকশন হাইড করো
-        const allDivs = document.getElementsByTagName('div');
-        for (let div of allDivs) {
-            // টেক্সট চেক (খুব দ্রুত)
-            if (div.textContent === 'Create story' || div.textContent === 'Add to Story') {
-                const container = div.closest('div._55wo') || div.closest('div[data-sigil="story-div"]');
-                if (container) {
-                    container.style.display = 'none';
-                    container.style.setProperty('display', 'none', 'important');
+        // --- B. Story & Reel Section Killer (Text Analysis) ---
+        // সব div স্ক্যান করে "Create story" বের করা
+        // অপ্টিমাইজেশন: আমরা document.body এর বদলে ছোট ছোট সেকশন ধরব
+        const potentialHeaders = document.querySelectorAll('div, span, h3, h4');
+        potentialHeaders.forEach(el => {
+            // যদি টেক্সট ছোট হয় এবং ব্ল্যাকলিস্টে থাকে
+            if (el.innerText && el.innerText.length < 30) {
+                if (BLACKLIST_KEYWORDS.some(k => el.innerText.includes(k))) {
+                    // এর মেইন কার্ড খুঁজে বের করো
+                    const card = el.closest('div._55wo') || // Mobile Card
+                                 el.closest('div[data-sigil="m-stories-tray-root"]') || 
+                                 el.closest('section');
+                    
+                    if (card) {
+                        card.style.display = 'none';
+                        card.style.setProperty('display', 'none', 'important');
+                    }
                 }
             }
-        }
+        });
 
-        // --- C. FEED VIDEO REMOVAL (ভিডিও পোস্ট ফিক্স) ---
-        const videos = document.querySelectorAll('video, div[data-sigil="inlineVideo"], i[data-sigil="play-button"], div[data-store*="videoID"]');
-        videos.forEach(vid => {
-            // ভিডিওর মেইন কার্ড (_55wo) খুঁজে বের করে হাইড করো
-            const card = vid.closest('div._55wo') || vid.closest('article');
+        // --- C. Feed Video Killer (The Heavy Hitter) ---
+        // ভিডিও এলিমেন্ট পেলেই তার পুরো খানদান (Post Card) গায়েব
+        const mediaElements = document.querySelectorAll('video, div[data-sigil="inlineVideo"], i[data-sigil="play-button"]');
+        mediaElements.forEach(media => {
+            const card = media.closest('div._55wo') || 
+                         media.closest('article') || 
+                         media.closest('div[role="article"]');
+            
             if (card) {
                 card.style.display = 'none';
                 card.style.setProperty('display', 'none', 'important');
@@ -76,33 +77,49 @@ function cleanNow() {
         });
 
     } catch (e) {
-        // কোনো এরর হলে ইগনোর করো, যাতে স্ক্রিপ্ট না থামে
+        // Silent error handling
     }
 }
 
-// ৩. স্টার্ট ফাংশন (অবজারভার সহ)
-function startCleaning() {
-    // একবার ক্লিন করো
-    cleanNow();
-
-    // এরপর পেজের যেকোনো পরিবর্তনের দিকে নজর রাখো (স্ক্রল করলে)
-    const observer = new MutationObserver((mutations) => {
-        cleanNow();
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-
-    // ডবল চেকের জন্য প্রতি ১ সেকেন্ড পর পর চালাও
-    setInterval(cleanNow, 1000);
-    console.log("FB Cleaner Active: No Videos, No Gaps.");
+// ৩. হাই-পারফরম্যান্স লুপ (RequestAnimationFrame)
+// এটি চ্যাটজিপিটির appendChild হুকের চেয়ে অনেক ফাস্ট এবং নিরাপদ
+let isRunning = false;
+function loop() {
+    if (!isRunning) {
+        isRunning = true;
+        requestAnimationFrame(() => {
+            finalClean();
+            isRunning = false;
+        });
+    }
 }
 
-// ৪. রান করো
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", waitForBody);
+// ৪. স্টার্টআপ
+function init() {
+    if (!document.body) {
+        setTimeout(init, 50); // বডি না আসা পর্যন্ত অপেক্ষা
+        return;
+    }
+
+    // ১. তাৎক্ষণিক ক্লিন
+    finalClean();
+
+    // ২. স্ক্রলে ক্লিন (সবচেয়ে জরুরি)
+    window.addEventListener('scroll', loop, { passive: true });
+
+    // ৩. DOM পরিবর্তনে ক্লিন (MutationObserver)
+    const observer = new MutationObserver(loop);
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // ৪. ব্যাকআপ টাইমার (প্রতি ৫০০ms)
+    setInterval(finalClean, 500);
+
+    console.log("FB v6.0 EndGame: Active");
+}
+
+// রান
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
 } else {
-    waitForBody();
+    init();
 }
